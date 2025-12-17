@@ -107,7 +107,7 @@ impl TenlyxClientBuilder {
 
         let http_client = Client::builder().timeout(timeout).build().map_err(TelnyxError::Http)?;
 
-        OK(TelnyxClient{
+        Ok(TelnyxClient{
             http_client,
             api_key,
             base_url

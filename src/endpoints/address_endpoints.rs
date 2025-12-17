@@ -1,8 +1,15 @@
-use crate::{client::TelnyxClient, error::TelnyxError, models::{Address, ApiListResponse, ApiResponse, CreateAddressRequest, ValidateAddressRequest, ValidateAddressResult, AddressAcceptSuggestionRequest, AddressAcceptSuggestionResult}};
+use crate::{
+    client::TelnyxClient,
+    error::TelnyxError,
+    models::{
+        Address, AddressAcceptSuggestionRequest, AddressAcceptSuggestionResult, ApiListResponse,
+        ApiResponse, CreateAddressRequest, ValidateAddressRequest, ValidateAddressResult,
+    },
+};
 
 /// API client for addresses
 pub struct AddressApi<'a> {
-    client: &'a TelnyxClient
+    client: &'a TelnyxClient,
 }
 
 impl<'a> AddressApi<'a> {
@@ -74,7 +81,10 @@ impl<'a> AddressApi<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn create(&self, request: CreateAddressRequest) -> Result<ApiResponse<Address>, TelnyxError> {
+    pub async fn create(
+        &self,
+        request: CreateAddressRequest,
+    ) -> Result<ApiResponse<Address>, TelnyxError> {
         self.client.post("/address", &request).await
     }
 
@@ -118,8 +128,13 @@ impl<'a> AddressApi<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn validate(&self, request: ValidateAddressRequest) -> Result<ApiResponse<ValidateAddressResult>, TelnyxError> {
-        self.client.post("/addresses/actions/validate", &request).await
+    pub async fn validate(
+        &self,
+        request: ValidateAddressRequest,
+    ) -> Result<ApiResponse<ValidateAddressResult>, TelnyxError> {
+        self.client
+            .post("/addresses/actions/validate", &request)
+            .await
     }
 
     /// Accept address suggestions for an address
@@ -139,7 +154,16 @@ impl<'a> AddressApi<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn accept_suggestions(&self, id: &str, request: AddressAcceptSuggestionRequest) -> Result<ApiResponse<AddressAcceptSuggestionResult>, TelnyxError> {
-        self.client.post(&format!("/addresses/{}/actions/accept_suggestions", id), &request).await
+    pub async fn accept_suggestions(
+        &self,
+        id: &str,
+        request: AddressAcceptSuggestionRequest,
+    ) -> Result<ApiResponse<AddressAcceptSuggestionResult>, TelnyxError> {
+        self.client
+            .post(
+                &format!("/addresses/{}/actions/accept_suggestions", id),
+                &request,
+            )
+            .await
     }
 }

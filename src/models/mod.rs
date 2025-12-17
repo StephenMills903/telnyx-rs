@@ -1,5 +1,5 @@
-mod common;
 mod addresses;
+mod common;
 
-pub use common::*;
 pub use addresses::*;
+pub use common::*;

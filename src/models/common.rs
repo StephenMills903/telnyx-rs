@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ApiResponse<T> {
     /// Endpoint specific response object
-    pub data: T
+    pub data: T,
 }
 
 /// API response envelope for list endpoints
@@ -14,7 +14,7 @@ pub struct ApiListResponse<T> {
     pub data: Vec<T>,
     /// Metadata for paginated responses
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub meta: Option<PaginationMeta>
+    pub meta: Option<PaginationMeta>,
 }
 
 /// Metadata for paginated responses from list endpoints
@@ -27,5 +27,5 @@ pub struct PaginationMeta {
     /// The current page number
     pub page_number: i32,
     /// The total size of the page
-    pub page_size: i32
+    pub page_size: i32,
 }

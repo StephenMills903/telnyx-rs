@@ -1,18 +1,18 @@
-use reqwest::{Client};
+use reqwest::Client;
 use serde::{Serialize, de::DeserializeOwned};
 use std::time::Duration;
 
 use crate::{endpoints::AddressApi, error::TelnyxError};
 
 /// The API client for interacting with the Telnyx API
-/// 
+///
 /// Use [`TelnyxClient::builder()`] to construct a new client.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```no-run
 /// use telnyx_rs::TelnyxClient;
-/// 
+///
 /// # async fn example() -> Result<(), telnyx_rs::TelnyxError> {
 /// let client = TelnyxClient::builder()
 ///     .api_key("your-api-key")
@@ -25,7 +25,7 @@ use crate::{endpoints::AddressApi, error::TelnyxError};
 pub struct TelnyxClient {
     pub(crate) http_client: Client,
     pub(crate) api_key: String,
-    pub (crate) base_url: String
+    pub(crate) base_url: String,
 }
 
 /// Builder for construction a [`TelnyxClient`]
@@ -33,7 +33,7 @@ pub struct TelnyxClient {
 pub struct TelnyxClientBuilder {
     api_key: Option<String>,
     base_url: Option<String>,
-    timeout: Option<Duration>
+    timeout: Option<Duration>,
 }
 
 impl TelnyxClient {
@@ -43,7 +43,7 @@ impl TelnyxClient {
     }
 
     /// The addresses API
-    /// 
+    ///
     /// # Usage
     ///
     /// ```no_run
@@ -55,56 +55,97 @@ impl TelnyxClient {
 
     pub(crate) async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, TelnyxError> {
         let url = format!("{}{}", self.base_url, path);
-        let response = self.http_client.get(&url).bearer_auth(&self.api_key).send().await?;
+        let response = self
+            .http_client
+            .get(&url)
+            .bearer_auth(&self.api_key)
+            .send()
+            .await?;
 
         self.parse_response(response).await
     }
 
-    pub(crate) async fn post<T, B> (&self, path: &str,body: &B) -> Result<T, TelnyxError> where T: DeserializeOwned, B: Serialize {
+    pub(crate) async fn post<T, B>(&self, path: &str, body: &B) -> Result<T, TelnyxError>
+    where
+        T: DeserializeOwned,
+        B: Serialize,
+    {
         let url = format!("{}{}", self.base_url, path);
-        let response = self.http_client.post(&url).bearer_auth(&self.api_key).json(body).send().await?;
+        let response = self
+            .http_client
+            .post(&url)
+            .bearer_auth(&self.api_key)
+            .json(body)
+            .send()
+            .await?;
 
         self.parse_response(response).await
     }
 
-    pub(crate) async fn put<T, B> (&self, path: &str,body: &B) -> Result<T, TelnyxError> where T: DeserializeOwned, B: Serialize {
+    pub(crate) async fn put<T, B>(&self, path: &str, body: &B) -> Result<T, TelnyxError>
+    where
+        T: DeserializeOwned,
+        B: Serialize,
+    {
         let url = format!("{}{}", self.base_url, path);
-        let response = self.http_client.put(&url).bearer_auth(&self.api_key).json(body).send().await?;
+        let response = self
+            .http_client
+            .put(&url)
+            .bearer_auth(&self.api_key)
+            .json(body)
+            .send()
+            .await?;
 
         self.parse_response(response).await
     }
 
-    pub(crate) async fn patch<T, B> (&self, path: &str,body: &B) -> Result<T, TelnyxError> where T: DeserializeOwned, B: Serialize {
+    pub(crate) async fn patch<T, B>(&self, path: &str, body: &B) -> Result<T, TelnyxError>
+    where
+        T: DeserializeOwned,
+        B: Serialize,
+    {
         let url = format!("{}{}", self.base_url, path);
-        let response = self.http_client.patch(&url).bearer_auth(&self.api_key).json(body).send().await?;
+        let response = self
+            .http_client
+            .patch(&url)
+            .bearer_auth(&self.api_key)
+            .json(body)
+            .send()
+            .await?;
 
         self.parse_response(response).await
     }
 
     pub(crate) async fn delete(&self, path: &str) -> Result<(), TelnyxError> {
         let url = format!("{}{}", self.base_url, path);
-        let response = self.http_client.delete(&url).bearer_auth(&self.api_key).send().await?;
+        let response = self
+            .http_client
+            .delete(&url)
+            .bearer_auth(&self.api_key)
+            .send()
+            .await?;
 
         if response.status().is_success() {
             Ok(())
-        }
-        else {
-            Err(TelnyxError::Api { 
-                status: response.status().as_u16(), 
-                message: response.text().await.unwrap_or_default()
+        } else {
+            Err(TelnyxError::Api {
+                status: response.status().as_u16(),
+                message: response.text().await.unwrap_or_default(),
             })
         }
     }
 
-    async fn parse_response<T: DeserializeOwned>(&self, response: reqwest::Response) -> Result<T, TelnyxError> {
+    async fn parse_response<T: DeserializeOwned>(
+        &self,
+        response: reqwest::Response,
+    ) -> Result<T, TelnyxError> {
         if response.status().is_success() {
             let body = response.text().await?;
             serde_json::from_str(&body).map_err(TelnyxError::from)
-        }
-        else {
-            Err(TelnyxError::Api { 
-                status: response.status().as_u16(), 
-                message: response.text().await.unwrap_or_default()
+        } else {
+            Err(TelnyxError::Api {
+                status: response.status().as_u16(),
+                message: response.text().await.unwrap_or_default(),
             })
         }
     }
@@ -135,16 +176,23 @@ impl TelnyxClientBuilder {
     /// Returns an error if the API key is not set or if the HTTP client
     /// fails to initialize.
     pub fn build(self) -> Result<TelnyxClient, TelnyxError> {
-        let api_key = self.api_key.ok_or_else(|| TelnyxError::Config("API key is required".into()))?;
-        let base_url = self.base_url.unwrap_or_else(|| "https://api.telnyx.com/v2".into());
+        let api_key = self
+            .api_key
+            .ok_or_else(|| TelnyxError::Config("API key is required".into()))?;
+        let base_url = self
+            .base_url
+            .unwrap_or_else(|| "https://api.telnyx.com/v2".into());
         let timeout = self.timeout.unwrap_or(Duration::from_secs(30));
 
-        let http_client = Client::builder().timeout(timeout).build().map_err(TelnyxError::Http)?;
+        let http_client = Client::builder()
+            .timeout(timeout)
+            .build()
+            .map_err(TelnyxError::Http)?;
 
-        Ok(TelnyxClient{
+        Ok(TelnyxClient {
             http_client,
             api_key,
-            base_url
+            base_url,
         })
     }
 }

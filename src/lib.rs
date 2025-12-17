@@ -2,12 +2,11 @@
 #![forbid(clippy::expect_used)]
 #![forbid(clippy::panic)]
 
+mod client;
+mod error;
+
 pub mod models;
 pub mod endpoints;
-
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
 
 #[cfg(test)]
 mod tests {
